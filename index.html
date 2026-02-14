@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Veldopname">
+<meta name="apple-mobile-web-app-title" content="Fieldlog">
 <meta name="theme-color" content="#0c0f0e">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Veldopname</title>
+<title>Field Recording Log</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230c0f0e'/><circle cx='90' cy='90' r='28' fill='none' stroke='%234ecdc4' stroke-width='4'/><circle cx='90' cy='90' r='8' fill='%234ecdc4'/></svg>">
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVmVsZG9wbmFtZSBMb2dnZXIiLCJzaG9ydF9uYW1lIjoiVmVsZG9wbmFtZSIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGMwZjBlIiwidGhlbWVfY29sb3IiOiIjMGMwZjBlIn0=">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRmllbGRsb2ciLCJzaG9ydF9uYW1lIjoiRmllbGRsb2ciLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBjMGYwZSIsInRoZW1lX2NvbG9yIjoiIzBjMGYwZSJ9">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
@@ -54,7 +54,6 @@ body {
   height: 100dvh; position: relative;
 }
 
-/* Header */
 header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px; padding-top: max(14px, var(--safe-t));
@@ -77,7 +76,6 @@ header {
   border-radius:var(--radius-sm); cursor:pointer;
 }
 
-/* Main */
 main {
   flex:1; overflow-y:auto; overflow-x:hidden;
   position:relative; -webkit-overflow-scrolling:touch;
@@ -86,7 +84,6 @@ main {
 .view { display:none; }
 .view.active { display:block; }
 
-/* Stats */
 .stats-bar {
   display:grid; grid-template-columns:repeat(3,1fr);
   gap:1px; background:var(--border); margin:16px;
@@ -102,7 +99,6 @@ main {
   color:var(--text-dim); margin-top:6px; font-family:var(--font-sans);
 }
 
-/* List */
 .list-wrap { padding:0 16px 120px; }
 .list-actions {
   display:flex; justify-content:flex-end; gap:8px;
@@ -133,20 +129,23 @@ main {
   justify-content:center; color:var(--accent); opacity:0.25; font-size:20px;
 }
 .rec-body { padding:12px 14px; flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; }
-.rec-desc {
-  font-size:13px; font-family:var(--font-sans); font-weight:500;
+.rec-title {
+  font-size:13px; font-family:var(--font-sans); font-weight:600;
   line-height:1.35; color:var(--text-bright);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
+.rec-location {
+  font-size:10px; color:var(--accent); margin-top:3px;
+  font-family:var(--font-mono); opacity:0.8;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
 .rec-meta {
-  font-size:10px; color:var(--text-dim); margin-top:5px;
+  font-size:10px; color:var(--text-dim); margin-top:4px;
   display:flex; align-items:center; gap:6px; font-family:var(--font-mono);
 }
 .rec-dot { opacity:0.3; }
-.rec-loc-dot { color:var(--accent); font-size:8px; }
-.rec-weather { font-size:10px; color:var(--text-dim); margin-top:4px; font-family:var(--font-sans); }
+.rec-weather { font-size:10px; color:var(--text-dim); margin-top:3px; font-family:var(--font-sans); }
 
-/* Empty */
 .empty {
   display:flex; flex-direction:column; align-items:center;
   justify-content:center; padding:80px 40px; text-align:center;
@@ -160,11 +159,9 @@ main {
 .empty-t { font-size:14px; color:var(--text); font-family:var(--font-sans); font-weight:500; }
 .empty-s { font-size:12px; color:var(--text-dim); margin-top:8px; font-family:var(--font-sans); }
 
-/* Map */
 .map-wrap { width:100%; height:100%; position:absolute; top:0; left:0; }
 #mainMap { width:100%; height:100%; }
 
-/* Add form */
 .add-form { padding:20px; display:flex; flex-direction:column; gap:14px; padding-bottom:40px; }
 .photo-box {
   width:100%; aspect-ratio:16/10; border-radius:var(--radius);
@@ -184,14 +181,16 @@ main {
   font-size:9px; text-transform:uppercase; letter-spacing:0.1em;
   color:var(--text-dim); margin-bottom:6px; display:block;
 }
-textarea {
+input[type="text"], textarea {
   width:100%; background:var(--bg2); border:1px solid var(--border);
   border-radius:var(--radius-sm); padding:14px 16px; color:var(--text);
   font-family:var(--font-sans); font-size:14px; line-height:1.5;
-  resize:none; outline:none; transition:border-color 0.2s;
+  outline:none; transition:border-color 0.2s;
 }
-textarea::placeholder { color:var(--text-dim); opacity:0.5; }
-textarea:focus { border-color:var(--accent); }
+input[type="text"] { line-height:1.2; }
+textarea { resize:none; }
+input::placeholder, textarea::placeholder { color:var(--text-dim); opacity:0.5; }
+input:focus, textarea:focus { border-color:var(--accent); }
 
 .info-row {
   display:flex; align-items:center; gap:10px;
@@ -215,13 +214,21 @@ textarea:focus { border-color:var(--accent); }
 .save-btn:disabled { opacity:0.25; }
 .save-btn:active:not(:disabled) { opacity:0.8; }
 
-/* Detail */
 .detail-wrap { padding-bottom:40px; }
 .detail-photo { width:100%; max-height:280px; object-fit:cover; border-bottom:1px solid var(--border); }
 .detail-body { padding:20px; }
+.detail-title {
+  font-size:20px; font-family:var(--font-sans); font-weight:600;
+  line-height:1.3; color:var(--text-bright); margin-bottom:4px;
+}
+.detail-loc {
+  font-size:12px; color:var(--accent); font-family:var(--font-mono);
+  margin-bottom:16px; opacity:0.8;
+}
 .detail-desc {
-  font-size:16px; font-family:var(--font-sans); font-weight:500;
-  line-height:1.55; color:var(--text-bright); margin-bottom:20px;
+  font-size:14px; font-family:var(--font-sans); font-weight:400;
+  line-height:1.6; color:var(--text); margin-bottom:20px;
+  white-space:pre-wrap;
 }
 .detail-grid {
   display:grid; grid-template-columns:1fr 1fr;
@@ -248,7 +255,6 @@ textarea:focus { border-color:var(--accent); }
   padding:12px; border-radius:var(--radius-sm); cursor:pointer; width:100%;
 }
 
-/* Nav */
 nav {
   position:absolute; bottom:0; left:0; right:0;
   display:flex; align-items:center; justify-content:space-around;
@@ -298,8 +304,8 @@ button:active { transform:scale(0.97); }
     <div class="h-left">
       <div class="logo"><div class="logo-dot"></div></div>
       <div>
-        <div class="h-title">VELDOPNAME</div>
-        <span class="h-sub" id="counter">0 opnames</span>
+        <div class="h-title">FIELDLOG</div>
+        <span class="h-sub" id="counter">0 recordings</span>
       </div>
     </div>
     <button class="h-btn" id="hBtn" style="display:none" onclick="goBack()"></button>
@@ -317,27 +323,27 @@ button:active { transform:scale(0.97); }
 
   <nav id="bnav">
     <button class="nav-btn" id="navList" onclick="go('list')" style="opacity:1">
-      <span class="nav-icon">☰</span><span class="nav-label">Lijst</span>
+      <span class="nav-icon">☰</span><span class="nav-label">List</span>
     </button>
     <button class="fab" onclick="startAdd()">+</button>
     <button class="nav-btn" id="navMap" onclick="go('map')" style="opacity:0.4">
-      <span class="nav-icon">◎</span><span class="nav-label">Kaart</span>
+      <span class="nav-icon">◎</span><span class="nav-label">Map</span>
     </button>
   </nav>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const SK='veldopname-v2';
-let recs=[],curView='list',curPhoto=null,curLoc=null,curWeather=null;
+const SK='fieldlog-v3';
+let recs=[],curView='list',curPhoto=null,curLoc=null,curWeather=null,curPlace=null;
 let mainMap=null,mainMarkers=[],detailMap=null,timerIv=null;
 
 function load(){try{const d=localStorage.getItem(SK);if(d)recs=JSON.parse(d)}catch(e){}}
 function save(){try{localStorage.setItem(SK,JSON.stringify(recs))}catch(e){}}
 
-function fmtDate(iso){return new Date(iso).toLocaleDateString('nl-BE',{weekday:'short',year:'numeric',month:'short',day:'numeric'})}
-function fmtTime(iso){return new Date(iso).toLocaleTimeString('nl-BE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
-function fmtShort(iso){return new Date(iso).toLocaleDateString('nl-BE',{day:'numeric',month:'short'})}
+function fmtDate(iso){return new Date(iso).toLocaleDateString('en-GB',{weekday:'short',year:'numeric',month:'short',day:'numeric'})}
+function fmtTime(iso){return new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+function fmtShort(iso){return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function today(){return new Date().toISOString().split('T')[0]}
 
@@ -350,7 +356,7 @@ function resizeImg(url,mx=800){
 }
 
 function windDir(deg){
-  const d=['N','NNO','NO','ONO','O','OZO','ZO','ZZO','Z','ZZW','ZW','WZW','W','WNW','NW','NNW'];
+  const d=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
   return d[Math.round(deg/22.5)%16];
 }
 function beaufort(ms){
@@ -358,6 +364,7 @@ function beaufort(ms){
   for(let i=0;i<b.length;i++) if(ms<b[i]) return i; return 12;
 }
 
+// Weather via Open-Meteo
 async function fetchWeather(lat,lng){
   try{
     const u='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lng+'&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,weather_code&timezone=auto';
@@ -369,13 +376,28 @@ async function fetchWeather(lat,lng){
   }catch(e){return null;}
 }
 
+// Reverse geocode via Nominatim (free, no key)
+async function reverseGeocode(lat,lng){
+  try{
+    const u='https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&zoom=14&addressdetails=1';
+    const r=await fetch(u,{signal:AbortSignal.timeout(8000),headers:{'Accept-Language':'en'}});
+    const d=await r.json();
+    const a=d.address;
+    // Build a nice place name: village/city/town + municipality/county
+    const place=a.village||a.town||a.city||a.hamlet||a.suburb||'';
+    const region=a.municipality||a.county||a.state||'';
+    if(place&&region&&place!==region) return place+', '+region;
+    return place||region||d.display_name?.split(',').slice(0,2).join(',')||'';
+  }catch(e){return null;}
+}
+
 function wxIcon(code){
   if(code<=1)return'\u2600\uFE0F';if(code<=3)return'\u26C5';if(code<=48)return'\uD83C\uDF2B\uFE0F';
   if(code<=67)return'\uD83C\uDF27\uFE0F';if(code<=77)return'\uD83C\uDF28\uFE0F';
   if(code<=82)return'\uD83C\uDF27\uFE0F';if(code<=86)return'\uD83C\uDF28\uFE0F';return'\u26C8\uFE0F';
 }
-function wxShort(w){if(!w)return'';return wxIcon(w.code)+' '+w.temp+'\u00B0C \u00B7 '+w.windDir+' Bf'+w.beaufort+' \u00B7 '+w.humidity+'%';}
-function wxFull(w){if(!w)return'';return wxIcon(w.code)+' '+w.temp+'\u00B0C, wind '+w.windDir+' ('+w.windDirDeg+'\u00B0) '+w.windSpeed+' km/u Bf'+w.beaufort+', RV '+w.humidity+'%';}
+function wxShort(w){if(!w)return'';return wxIcon(w.code)+' '+w.temp+'\u00B0C \u00B7 '+w.windDir+' Bf'+w.beaufort;}
+function wxFull(w){if(!w)return'';return wxIcon(w.code)+' '+w.temp+'\u00B0C, wind '+w.windDir+' ('+w.windDirDeg+'\u00B0) '+w.windSpeed+' km/h Bf'+w.beaufort+', RH '+w.humidity+'%';}
 
 // View management
 function go(name){
@@ -395,17 +417,17 @@ function go(name){
     document.getElementById('vAdd').classList.add('active');
     document.getElementById('bnav').style.display='none';
     document.getElementById('hBtn').style.display='';
-    document.getElementById('hBtn').textContent='annuleer';
+    document.getElementById('hBtn').textContent='cancel';
   }else if(name==='detail'){
     document.getElementById('vDetail').classList.add('active');
     document.getElementById('bnav').style.display='none';
     document.getElementById('hBtn').style.display='';
-    document.getElementById('hBtn').textContent='\u2190 terug';
+    document.getElementById('hBtn').textContent='\u2190 back';
   }
   updCtr();
 }
 function goBack(){if(timerIv){clearInterval(timerIv);timerIv=null;}go('list');}
-function updCtr(){document.getElementById('counter').textContent=recs.length+' opname'+(recs.length!==1?'s':'');}
+function updCtr(){document.getElementById('counter').textContent=recs.length+' recording'+(recs.length!==1?'s':'');}
 
 // Stats
 function renderStats(){
@@ -414,21 +436,23 @@ function renderStats(){
   const wl=recs.filter(r=>r.lat).length;
   const n=new Date();
   const mo=recs.filter(r=>{const d=new Date(r.timestamp);return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length;
-  el.innerHTML='<div class="stats-bar fade-in"><div class="stat-card"><div class="stat-val">'+recs.length+'</div><div class="stat-label">Totaal</div></div><div class="stat-card"><div class="stat-val">'+mo+'</div><div class="stat-label">Deze maand</div></div><div class="stat-card"><div class="stat-val">'+wl+'</div><div class="stat-label">Met locatie</div></div></div>';
+  el.innerHTML='<div class="stats-bar fade-in"><div class="stat-card"><div class="stat-val">'+recs.length+'</div><div class="stat-label">Total</div></div><div class="stat-card"><div class="stat-val">'+mo+'</div><div class="stat-label">This month</div></div><div class="stat-card"><div class="stat-val">'+wl+'</div><div class="stat-label">With location</div></div></div>';
 }
 
 // List
 function renderList(){
   const el=document.getElementById('listWrap');
   if(!recs.length){
-    el.innerHTML='<div class="empty"><div class="empty-ring"><div class="empty-ring-dot"></div></div><p class="empty-t">Nog geen opnames</p><p class="empty-s">Tik op + om je eerste veldopname te loggen</p></div>';
+    el.innerHTML='<div class="empty"><div class="empty-ring"><div class="empty-ring-dot"></div></div><p class="empty-t">No recordings yet</p><p class="empty-s">Tap + to log your first field recording</p></div>';
     return;
   }
   let h='<div class="list-actions"><button class="sm-btn" onclick="exportCSV()">\u2193 CSV</button><button class="sm-btn" onclick="exportGeoJSON()">\u2193 GeoJSON</button></div>';
   recs.forEach((r,i)=>{
     const th=r.photo?'<img src="'+r.photo+'" class="rec-thumb" alt="">':'<div class="rec-thumb-ph">\u25CE</div>';
     const ws=r.weather?'<div class="rec-weather">'+wxShort(r.weather)+'</div>':'';
-    h+='<button class="rec-card fade-in" style="animation-delay:'+i*0.04+'s" onclick="showDetail(\''+r.id+'\')">'+th+'<div class="rec-body"><div class="rec-desc">'+esc(r.description||'Geen beschrijving')+'</div><div class="rec-meta"><span>'+fmtShort(r.timestamp)+'</span><span class="rec-dot">\u00B7</span><span>'+fmtTime(r.timestamp)+'</span>'+(r.lat?'<span class="rec-dot">\u00B7</span><span class="rec-loc-dot">\u25CF</span>':'')+'</div>'+ws+'</div></button>';
+    const loc=r.placeName?'<div class="rec-location">\u25C9 '+esc(r.placeName)+'</div>':'';
+    const title=r.title?esc(r.title):(r.description?esc(r.description):'Untitled');
+    h+='<button class="rec-card fade-in" style="animation-delay:'+i*0.04+'s" onclick="showDetail(\''+r.id+'\')">'+th+'<div class="rec-body"><div class="rec-title">'+title+'</div>'+loc+'<div class="rec-meta"><span>'+fmtShort(r.timestamp)+'</span><span class="rec-dot">\u00B7</span><span>'+fmtTime(r.timestamp)+'</span></div>'+ws+'</div></button>';
   });
   el.innerHTML=h;
 }
@@ -438,12 +462,17 @@ function showDetail(id){
   const r=recs.find(x=>x.id===id);if(!r)return;
   let h='<div class="detail-wrap fade-in">';
   if(r.photo)h+='<img src="'+r.photo+'" class="detail-photo" alt="">';
-  h+='<div class="detail-body"><div class="detail-desc">'+esc(r.description||'Geen beschrijving')+'</div><div class="detail-grid"><div class="detail-cell"><span class="d-label">Datum</span><span class="d-val">'+fmtDate(r.timestamp)+'</span></div><div class="detail-cell"><span class="d-label">Tijd</span><span class="d-val">'+fmtTime(r.timestamp)+'</span></div>';
-  if(r.lat)h+='<div class="detail-cell"><span class="d-label">Co\u00F6rdinaten</span><span class="d-val d-val-accent">'+r.lat.toFixed(6)+', '+r.lng.toFixed(6)+'</span></div><div class="detail-cell"><span class="d-label">Nauwkeurigheid</span><span class="d-val">\u00B1'+Math.round(r.accuracy||0)+'m</span></div>';
-  if(r.weather)h+='<div class="detail-cell detail-cell-full"><span class="d-label">Weeromstandigheden</span><span class="d-val">'+wxFull(r.weather)+'</span></div>';
+  h+='<div class="detail-body">';
+  h+='<div class="detail-title">'+esc(r.title||'Untitled')+'</div>';
+  if(r.placeName)h+='<div class="detail-loc">\u25C9 '+esc(r.placeName)+'</div>';
+  else h+='<div style="margin-bottom:12px"></div>';
+  if(r.description)h+='<div class="detail-desc">'+esc(r.description)+'</div>';
+  h+='<div class="detail-grid"><div class="detail-cell"><span class="d-label">Date</span><span class="d-val">'+fmtDate(r.timestamp)+'</span></div><div class="detail-cell"><span class="d-label">Time</span><span class="d-val">'+fmtTime(r.timestamp)+'</span></div>';
+  if(r.lat)h+='<div class="detail-cell"><span class="d-label">Coordinates</span><span class="d-val d-val-accent">'+r.lat.toFixed(6)+', '+r.lng.toFixed(6)+'</span></div><div class="detail-cell"><span class="d-label">Accuracy</span><span class="d-val">\u00B1'+Math.round(r.accuracy||0)+'m</span></div>';
+  if(r.weather)h+='<div class="detail-cell detail-cell-full"><span class="d-label">Weather conditions</span><span class="d-val">'+wxFull(r.weather)+'</span></div>';
   h+='</div>';
   if(r.lat)h+='<div class="detail-minimap" id="detailMinimap"></div>';
-  h+='<button class="del-btn" onclick="delRec(\''+r.id+'\')">Verwijderen</button></div></div>';
+  h+='<button class="del-btn" onclick="delRec(\''+r.id+'\')">Delete recording</button></div></div>';
   document.getElementById('vDetail').innerHTML=h;
   go('detail');
   if(r.lat){
@@ -459,14 +488,57 @@ function showDetail(id){
   }
 }
 
-function delRec(id){if(!confirm('Deze opname verwijderen?'))return;recs=recs.filter(r=>r.id!==id);save();go('list');}
+function delRec(id){if(!confirm('Delete this recording?'))return;recs=recs.filter(r=>r.id!==id);save();go('list');}
 
 // Add
 function startAdd(){
-  curPhoto=null;curLoc=null;curWeather=null;
-  document.getElementById('vAdd').innerHTML='<div class="add-form fade-in"><div class="photo-box" onclick="document.getElementById(\'camIn\').click()"><div class="photo-ph" id="photoPh"><span class="photo-ph-icon">\uD83D\uDCF7</span><span class="photo-ph-text">tik om foto te nemen</span></div><img id="photoImg" style="display:none" alt=""><input type="file" id="camIn" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(event)"></div><div class="field-group"><label class="field-label">Beschrijving</label><textarea id="descIn" placeholder="Locatie, omgevingsgeluiden, omstandigheden..." rows="3"></textarea></div><div class="info-row" id="locInfo"><div class="pulse-dot"></div><span class="info-text">Locatie bepalen...</span></div><div class="info-row" id="wxInfo" style="display:none"><span class="info-icon">\uD83C\uDF21\uFE0F</span><span class="info-text" id="wxText"></span></div><div class="info-row"><span class="info-icon" style="opacity:0.4">\u23F1</span><span class="info-text" id="timeText"></span></div><button class="save-btn" id="saveBtn" disabled onclick="doSave()">Opname registreren</button></div>';
+  curPhoto=null;curLoc=null;curWeather=null;curPlace=null;
+  document.getElementById('vAdd').innerHTML=`
+    <div class="add-form fade-in">
+      <div class="photo-box" onclick="document.getElementById('camIn').click()">
+        <div class="photo-ph" id="photoPh">
+          <span class="photo-ph-icon">\uD83D\uDCF7</span>
+          <span class="photo-ph-text">tap to take photo</span>
+        </div>
+        <img id="photoImg" style="display:none" alt="">
+        <input type="file" id="camIn" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(event)">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Title</label>
+        <input type="text" id="titleIn" placeholder="e.g. Dawn chorus at the river bend" maxlength="100">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Description</label>
+        <textarea id="descIn" placeholder="Environment, sound sources, conditions, equipment notes..." rows="3"></textarea>
+      </div>
+
+      <div class="info-row" id="locInfo">
+        <div class="pulse-dot"></div>
+        <span class="info-text">Getting location...</span>
+      </div>
+
+      <div class="info-row" id="placeInfo" style="display:none">
+        <span class="info-icon" style="color:var(--accent)">\u25C9</span>
+        <span class="info-text" id="placeText"></span>
+      </div>
+
+      <div class="info-row" id="wxInfo" style="display:none">
+        <span class="info-icon">\uD83C\uDF21\uFE0F</span>
+        <span class="info-text" id="wxText"></span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-icon" style="opacity:0.4">\u23F1</span>
+        <span class="info-text" id="timeText"></span>
+      </div>
+
+      <button class="save-btn" id="saveBtn" disabled onclick="doSave()">Save recording</button>
+    </div>`;
   go('add');getLoc();updTime();
   timerIv=setInterval(updTime,1000);
+  document.getElementById('titleIn').addEventListener('input',chkSave);
   document.getElementById('descIn').addEventListener('input',chkSave);
 }
 
@@ -485,39 +557,54 @@ function onPhoto(e){
 }
 
 function chkSave(){
-  const d=document.getElementById('descIn'),b=document.getElementById('saveBtn');
-  if(d&&b)b.disabled=!d.value.trim()&&!curPhoto;
+  const t=document.getElementById('titleIn'),d=document.getElementById('descIn'),b=document.getElementById('saveBtn');
+  if(t&&d&&b) b.disabled=!t.value.trim()&&!d.value.trim()&&!curPhoto;
 }
 
 function getLoc(){
   const el=document.getElementById('locInfo');
-  if(!navigator.geolocation){el.innerHTML='<span style="color:var(--danger)">\u2715</span><span style="color:var(--danger)">Geolocatie niet beschikbaar</span>';return;}
+  if(!navigator.geolocation){el.innerHTML='<span style="color:var(--danger)">\u2715</span><span style="color:var(--danger)">Geolocation not available</span>';return;}
+  el.innerHTML='<div class="pulse-dot"></div><span class="info-text">Getting location...</span>';
   navigator.geolocation.getCurrentPosition(
     async pos=>{
       curLoc={lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy};
       el.innerHTML='<span style="color:var(--accent)">\u25C9</span><span>'+curLoc.lat.toFixed(5)+', '+curLoc.lng.toFixed(5)+'</span><span style="opacity:0.35;font-size:10px">\u00B1'+Math.round(curLoc.accuracy)+'m</span>';
+
+      // Reverse geocode
+      const pEl=document.getElementById('placeInfo'),pTx=document.getElementById('placeText');
+      pEl.style.display='flex'; pTx.textContent='Resolving location name...';
+      curPlace=await reverseGeocode(curLoc.lat,curLoc.lng);
+      if(curPlace){pTx.textContent=curPlace;}
+      else{pEl.style.display='none';}
+
+      // Weather
       const wEl=document.getElementById('wxInfo'),wTx=document.getElementById('wxText');
-      wEl.style.display='flex';wTx.textContent='Weer ophalen...';
+      wEl.style.display='flex';wTx.textContent='Fetching weather...';
       curWeather=await fetchWeather(curLoc.lat,curLoc.lng);
       if(curWeather){wTx.textContent=wxFull(curWeather);}
-      else{wTx.textContent='Geen weerdata (offline?)';wTx.style.opacity='0.4';}
+      else{wTx.textContent='No weather data (offline?)';wTx.style.opacity='0.4';}
     },
     err=>{
-      const msg=err.code===1?'Locatietoegang geweigerd':'Kon locatie niet bepalen';
-      el.innerHTML='<span style="color:var(--danger)">\u2715</span><span style="color:var(--danger)">'+msg+'</span><button class="sm-btn" style="margin-left:auto" onclick="getLoc()">opnieuw</button>';
+      const msg=err.code===1?'Location access denied':'Could not determine location';
+      el.innerHTML='<span style="color:var(--danger)">\u2715</span><span style="color:var(--danger)">'+msg+'</span><button class="sm-btn" style="margin-left:auto" onclick="getLoc()">retry</button>';
     },
     {enableHighAccuracy:true,timeout:15000}
   );
 }
 
 async function doSave(){
+  const title=document.getElementById('titleIn').value.trim();
   const desc=document.getElementById('descIn').value.trim();
-  if(!desc&&!curPhoto)return;
+  if(!title&&!desc&&!curPhoto)return;
   if(timerIv){clearInterval(timerIv);timerIv=null;}
   recs.unshift({
     id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),
-    timestamp:new Date().toISOString(),description:desc,photo:curPhoto,
+    timestamp:new Date().toISOString(),
+    title:title,
+    description:desc,
+    photo:curPhoto,
     lat:curLoc?.lat||null,lng:curLoc?.lng||null,accuracy:curLoc?.accuracy||null,
+    placeName:curPlace||null,
     weather:curWeather||null
   });
   save();go('list');
@@ -526,7 +613,7 @@ async function doSave(){
 // Main map
 function initMainMap(){
   const geo=recs.filter(r=>r.lat&&r.lng);
-  if(!geo.length){document.getElementById('mainMap').innerHTML='<div class="empty" style="height:100%"><p class="empty-t">Geen opnames met locatie</p></div>';return;}
+  if(!geo.length){document.getElementById('mainMap').innerHTML='<div class="empty" style="height:100%"><p class="empty-t">No recordings with location</p></div>';return;}
   if(!mainMap){
     mainMap=L.map('mainMap',{zoomControl:true}).setView([50.85,4.35],9);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO',maxZoom:19}).addTo(mainMap);
@@ -534,8 +621,8 @@ function initMainMap(){
   mainMarkers.forEach(m=>mainMap.removeLayer(m));mainMarkers=[];
   geo.forEach(r=>{
     const ic=L.divIcon({className:'x',html:'<div style="width:14px;height:14px;background:#4ecdc4;border:2px solid #0c0f0e;border-radius:50%;box-shadow:0 0 10px rgba(78,205,196,0.35)"></div>',iconSize:[14,14],iconAnchor:[7,7]});
-    const m=L.marker([r.lat,r.lng],{icon:ic}).addTo(mainMap)
-      .bindPopup('<div style="font-family:monospace;font-size:11px;max-width:200px"><strong>'+esc(r.description||'Geen beschrijving')+'</strong><br><span style="opacity:0.6">'+fmtDate(r.timestamp)+'</span>'+(r.weather?'<br><span style="opacity:0.6">'+wxShort(r.weather)+'</span>':'')+'</div>');
+    const popupContent='<div style="font-family:monospace;font-size:11px;max-width:200px"><strong>'+esc(r.title||r.description||'Untitled')+'</strong>'+(r.placeName?'<br><span style="color:#4ecdc4">'+esc(r.placeName)+'</span>':'')+'<br><span style="opacity:0.6">'+fmtDate(r.timestamp)+'</span>'+(r.weather?'<br><span style="opacity:0.6">'+wxShort(r.weather)+'</span>':'')+'</div>';
+    const m=L.marker([r.lat,r.lng],{icon:ic}).addTo(mainMap).bindPopup(popupContent);
     m.on('click',()=>showDetail(r.id));
     mainMarkers.push(m);
   });
@@ -546,23 +633,32 @@ function initMainMap(){
 // Export
 function exportCSV(){
   if(!recs.length)return;
-  const hdr='id,datum,tijd,beschrijving,latitude,longitude,nauwkeurigheid_m,temp_c,wind_kmh,wind_richting,beaufort,rv_pct';
+  const hdr='id,date,time,title,description,location_name,latitude,longitude,accuracy_m,temp_c,wind_kmh,wind_dir,beaufort,humidity_pct';
   const rows=recs.map(r=>{const d=new Date(r.timestamp),w=r.weather||{};
-    return[r.id,d.toISOString().split('T')[0],d.toTimeString().split(' ')[0],'"'+(r.description||'').replace(/"/g,'""')+'"',r.lat||'',r.lng||'',r.accuracy?Math.round(r.accuracy):'',w.temp??'',w.windSpeed??'',w.windDir??'',w.beaufort??'',w.humidity??''].join(',');
+    return[r.id,d.toISOString().split('T')[0],d.toTimeString().split(' ')[0],
+      '"'+(r.title||'').replace(/"/g,'""')+'"',
+      '"'+(r.description||'').replace(/"/g,'""')+'"',
+      '"'+(r.placeName||'').replace(/"/g,'""')+'"',
+      r.lat||'',r.lng||'',r.accuracy?Math.round(r.accuracy):'',
+      w.temp??'',w.windSpeed??'',w.windDir??'',w.beaufort??'',w.humidity??''].join(',');
   });
-  dl(hdr+'\n'+rows.join('\n'),'veldopnames_'+today()+'.csv','text/csv');
+  dl(hdr+'\n'+rows.join('\n'),'fieldlog_'+today()+'.csv','text/csv');
 }
 
 function exportGeoJSON(){
   const geo=recs.filter(r=>r.lat&&r.lng);
-  if(!geo.length){alert('Geen opnames met locatie');return;}
+  if(!geo.length){alert('No recordings with location data');return;}
   const fc={type:'FeatureCollection',features:geo.map(r=>{const w=r.weather||{};
     return{type:'Feature',geometry:{type:'Point',coordinates:[r.lng,r.lat]},
-      properties:{id:r.id,beschrijving:r.description||'',datum:new Date(r.timestamp).toISOString().split('T')[0],
-        tijd:new Date(r.timestamp).toTimeString().split(' ')[0],nauwkeurigheid_m:r.accuracy?Math.round(r.accuracy):null,
-        temp_c:w.temp??null,wind_kmh:w.windSpeed??null,wind_richting:w.windDir??null,beaufort:w.beaufort??null,relatieve_vochtigheid:w.humidity??null}};
+      properties:{id:r.id,title:r.title||'',description:r.description||'',
+        location_name:r.placeName||'',
+        date:new Date(r.timestamp).toISOString().split('T')[0],
+        time:new Date(r.timestamp).toTimeString().split(' ')[0],
+        accuracy_m:r.accuracy?Math.round(r.accuracy):null,
+        temp_c:w.temp??null,wind_kmh:w.windSpeed??null,wind_dir:w.windDir??null,
+        beaufort:w.beaufort??null,humidity_pct:w.humidity??null}};
   })};
-  dl(JSON.stringify(fc,null,2),'veldopnames_'+today()+'.geojson','application/json');
+  dl(JSON.stringify(fc,null,2),'fieldlog_'+today()+'.geojson','application/json');
 }
 
 function dl(content,name,mime){
@@ -572,11 +668,10 @@ function dl(content,name,mime){
 
 // Service Worker
 if('serviceWorker' in navigator){
-  const swCode="const CACHE='veldopname-v2';const ASSETS=['./','https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js','https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{if(resp.ok&&e.request.method==='GET'){const cl=resp.clone();caches.open(CACHE).then(c=>c.put(e.request,cl));}return resp;}).catch(()=>new Response('Offline',{status:503}))));});";
+  const swCode="const CACHE='fieldlog-v3';const ASSETS=['./','https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet@1.9.4/dist/leaflet.js','https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{if(resp.ok&&e.request.method==='GET'){const cl=resp.clone();caches.open(CACHE).then(c=>c.put(e.request,cl));}return resp;}).catch(()=>new Response('Offline',{status:503}))));});";
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode],{type:'application/javascript'}))).catch(()=>{});
 }
 
-// Init
 load();renderStats();renderList();updCtr();
 </script>
 </body>
